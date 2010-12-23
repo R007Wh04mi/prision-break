@@ -1,0 +1,69 @@
+diff -Nrpu mozilla-https-everywhere-0.3.0/chrome/content/code/HTTPSRules.js mozilla-https-everywhere-0.3.0.patch/chrome/content/code/HTTPSRules.js
+--- mozilla-https-everywhere-0.3.0/chrome/content/code/HTTPSRules.js	2010-11-12 11:43:32.000000000 -0500
++++ mozilla-https-everywhere-0.3.0.patch/chrome/content/code/HTTPSRules.js	2010-11-22 16:49:12.971580372 -0500
+@@ -121,6 +121,8 @@ RuleSet.prototype = {
+ };
+ 
+ const RuleWriter = {
++  addonDir: false,
++
+   getCustomRuleDir: function() {
+     var loc = "ProfD";  // profile directory
+     var file =
+@@ -140,21 +142,20 @@ const RuleWriter = {
+   },
+ 
+   getRuleDir: function() {
+-    var loc = "ProfD";  // profile directory
+-    var file =
+-      CC["@mozilla.org/file/directory_service;1"]
+-      .getService(CI.nsIProperties)
+-      .get(loc, CI.nsILocalFile)
+-      .clone();
+-    file.append("extensions");
+-    file.append("https-everywhere@eff.org");
++    if (!this.addonDir)
++      try {
++        // Firefox < 4
++        this.addonDir = CC["@mozilla.org/extensions/manager;1"].
++          getService(CI.nsIExtensionManager).
++          getInstallLocation("https-everywhere@eff.org").
++          getItemFile("https-everywhere@eff.org", "");
++      } catch(e) {
++        // Firefox >= 4 (this should not be reached)
++      }
++    var file = this.addonDir.clone();
+     file.append("chrome");
+     file.append("content");
+     file.append("rules");
+-    // Check for existence, if not, create.
+-    if (!file.exists()) {
+-      file.create(CI.nsIFile.DIRECTORY_TYPE, 0700);
+-    }
+     if (!file.isDirectory()) {
+       // XXX: Arg, death!
+     }
+diff -Nrpu mozilla-https-everywhere-0.3.0/components/https-everywhere.js mozilla-https-everywhere-0.3.0.patch/components/https-everywhere.js
+--- mozilla-https-everywhere-0.3.0/components/https-everywhere.js	2010-11-12 11:43:32.000000000 -0500
++++ mozilla-https-everywhere-0.3.0.patch/components/https-everywhere.js	2010-11-22 16:49:40.540583401 -0500
+@@ -246,7 +246,19 @@ HTTPSEverywhere.prototype = {
+         .getService(CI.nsIWebProgress);
+       dls.addProgressListener(this, CI.nsIWebProgress.NOTIFY_STATE_REQUEST);
+       this.log(INFO,"ChannelReplacement.supported = "+ChannelReplacement.supported);
+-      HTTPSRules.init();
++      try {
++        // Firefox >= 4
++        Components.utils.import("resource://gre/modules/AddonManager.jsm");
++        AddonManager.getAddonByID("https-everywhere@eff.org",
++          function(addon) {
++            RuleWriter.addonDir = addon.
++              getResourceURI("").QueryInterface(CI.nsIFileURL).file;
++            HTTPSRules.init();
++          });
++      } catch(e) {
++        // Firefox < 4
++        HTTPSRules.init();
++      }
+       Thread.hostRunning = true;
+       var catman = Components.classes["@mozilla.org/categorymanager;1"]
+            .getService(Components.interfaces.nsICategoryManager);
