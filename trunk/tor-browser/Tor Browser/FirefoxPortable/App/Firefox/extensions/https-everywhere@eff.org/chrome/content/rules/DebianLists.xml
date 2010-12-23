@@ -1,6 +1,0 @@
-<ruleset name="DebianLists">
-  <target host="lists.debian.org" />
-
-  <rule from="^http://lists\.debian\.org/" to="https://lists.debian.org/"/>
-</ruleset>
-

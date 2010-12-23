@@ -1,5 +1,0 @@
-<ruleset name="KDE Bugtracker">
-  <target host="bugs.kde.org" />
-
-	<rule from="^http://bugs\.kde\.org/" to="https://bugs.kde.org/"/>
-</ruleset>

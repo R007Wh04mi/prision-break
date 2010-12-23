@@ -1,6 +1,0 @@
-<ruleset name="Web.de">
-  <target host="web.de" />
-  <target host="www.web.de" />
-
-  <rule from="^http://(www\.)?web\.de/" to="https://www.web.de/"/>
-</ruleset>

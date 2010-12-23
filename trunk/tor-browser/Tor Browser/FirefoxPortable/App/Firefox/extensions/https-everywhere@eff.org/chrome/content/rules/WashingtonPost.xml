@@ -1,7 +1,0 @@
-<ruleset name="WashingtonPost">
-  <target host="www.washingtonpost.com" />
-  <target host="washingtonpost.com" />
-
-  <rule from="^http://(www\.)?washingtonpost\.com/"
-          to="https://www.washingtonpost.com/"/>
-</ruleset>

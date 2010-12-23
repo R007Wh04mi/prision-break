@@ -1,6 +1,0 @@
-<ruleset name="LibraryThing">
-  <target host="www.librarything.com" />
-  <target host="librarything.com" />
-
-  <rule from="^http://(www\.)?librarything\.com/" to="https://www.librarything.com/"/>
-</ruleset>
